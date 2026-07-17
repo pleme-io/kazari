@@ -132,6 +132,28 @@ fn panel_aligns_keys() {
 }
 
 #[test]
+fn table_aligns_and_degrades() {
+    let out = kazari::table(["Domain", "Gate"])
+        .row(["derivation", "Working"])
+        .row(["module_system", "M2Typed"])
+        .to_string_at(at(ColorLevel::None, false));
+    let lines: Vec<&str> = out.lines().collect();
+    assert_eq!(lines.len(), 4, "header + rule + 2 rows: {out:?}");
+    assert!(!out.contains('\u{1b}'), "None ⇒ zero escapes: {out:?}");
+    // col-0 padded to the widest cell ("module_system") ⇒ the "Gate" values
+    // start at the same column in both data rows.
+    let c2 = lines[2].find("Working").unwrap();
+    let c3 = lines[3].find("M2Typed").unwrap();
+    assert_eq!(c2, c3, "column 2 aligns across rows: {out:?}");
+}
+
+#[test]
+fn table_header_accented_at_truecolor() {
+    let out = kazari::table(["A", "B"]).row(["1", "2"]).to_string_at(at(ColorLevel::Truecolor, true));
+    assert!(out.contains("38;2;136;192;208"), "header is Primary/nord8: {out:?}");
+}
+
+#[test]
 fn list_tasks_carry_severity() {
     let out = kazari::list()
         .task(CalloutSeverity::Ok, "compiled")

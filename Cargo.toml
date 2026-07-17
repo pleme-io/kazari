@@ -16,8 +16,9 @@ categories = ["command-line-interface"]
 [dependencies]
 # CONSUME (no fork): irodori is the Nord palette + linear-space color math
 # source of truth. The quantizers reuse Color::to_linear so degrade is
-# nearest-in-LINEAR-space (matte relationships survive).
-irodori = { path = "../irodori" }
+# nearest-in-LINEAR-space (matte relationships survive). Git dep (pinned) so
+# kazari is fleet-consumable (matches seki's ishou-tokens pattern).
+irodori = { git = "https://github.com/pleme-io/irodori", rev = "1c40add39ed45c9cfed5eda1840824015f35393c" }
 # WRAP: anstyle is the typed SGR surface. Every escape byte comes from
 # anstyle's tested Display — kazari never hand-spells "\x1b" or format!()s a
 # sequence (TYPED EMISSION).

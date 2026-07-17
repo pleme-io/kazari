@@ -352,3 +352,96 @@ impl BlockRender for Badge {
         ]]
     }
 }
+
+// ── Table — aligned columns ───────────────────────────────────────────────
+
+/// A multi-column table: a bold header row, a dim rule, aligned data rows.
+///
+/// kazari-native (not a comfy-table wrap): every cell is a [`Fragment`] over
+/// a [`Role`], so emission stays typed (anstyle, no hand-spelled ANSI) and
+/// capability-honest (roles strip to plain at `None`) — the two invariants a
+/// wrapped engine's own ANSI emission would breach.
+#[derive(Clone, Debug, Default)]
+pub struct Table {
+    pub headers: Vec<String>,
+    pub rows: Vec<Vec<String>>,
+}
+
+impl Table {
+    #[must_use]
+    pub fn new<I, S>(headers: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+        S: Into<String>,
+    {
+        Self { headers: headers.into_iter().map(Into::into).collect(), rows: Vec::new() }
+    }
+
+    #[must_use]
+    pub fn row<I, S>(mut self, cells: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+        S: Into<String>,
+    {
+        self.rows.push(cells.into_iter().map(Into::into).collect());
+        self
+    }
+}
+
+impl BlockRender for Table {
+    fn layout(&self, caps: &Capability, _theme: Theme) -> Vec<StyledLine> {
+        let ncols = self.headers.len();
+        if ncols == 0 {
+            return Vec::new();
+        }
+        let width_of = |s: &str| unicode_width::UnicodeWidthStr::width(s);
+
+        // Column widths: max over header + all cells in that column.
+        let mut widths: Vec<usize> = self.headers.iter().map(|h| width_of(h)).collect();
+        for row in &self.rows {
+            for (i, cell) in row.iter().enumerate() {
+                if i < ncols {
+                    widths[i] = widths[i].max(width_of(cell));
+                }
+            }
+        }
+
+        let gap = "  ";
+        let pad_cell = |text: &str, w: usize| -> String {
+            let mut s = String::from(text);
+            s.push_str(&repeat(" ", w.saturating_sub(width_of(text))));
+            s
+        };
+
+        let mut lines: Vec<StyledLine> = Vec::new();
+
+        // Header row (Primary, bold).
+        let mut header: StyledLine = Vec::new();
+        for (i, h) in self.headers.iter().enumerate() {
+            if i > 0 {
+                header.push(Fragment::plain(gap));
+            }
+            header.push(Fragment::accent(pad_cell(h, widths[i]), Role::Primary));
+        }
+        lines.push(header);
+
+        // Dim rule under the header, spanning the table.
+        let total: usize = widths.iter().sum::<usize>() + gap.len() * ncols.saturating_sub(1);
+        let g = glyphs(caps);
+        lines.push(vec![Fragment::faint(repeat(g.h, total), Role::Border)]);
+
+        // Data rows (Text).
+        for row in &self.rows {
+            let mut line: StyledLine = Vec::new();
+            for i in 0..ncols {
+                if i > 0 {
+                    line.push(Fragment::plain(gap));
+                }
+                let cell = row.get(i).map_or("", String::as_str);
+                line.push(Fragment::styled(pad_cell(cell, widths[i]), Role::Text));
+            }
+            lines.push(line);
+        }
+        lines
+    }
+}

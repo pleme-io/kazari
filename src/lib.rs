@@ -35,11 +35,12 @@
 pub mod blocks;
 pub mod caps;
 pub mod ir;
+pub mod lisp;
 pub mod render;
 pub mod style;
 pub mod theme;
 
-pub use blocks::{Badge, Banner, Callout, List, ListItem, Panel, Rule};
+pub use blocks::{Badge, Banner, Callout, List, ListItem, Panel, Rule, Table};
 pub use caps::{Background, Capability, ColorLevel, Rgb};
 pub use ir::{CalloutSeverity, Fragment, StyledLine};
 pub use render::{render, BlockRender, MockEnvironment, RenderEnvironment, TerminalEnvironment};
@@ -125,6 +126,16 @@ pub fn list() -> List {
     List::new()
 }
 
+/// A table builder with the given header columns.
+#[must_use]
+pub fn table<I, S>(headers: I) -> Table
+where
+    I: IntoIterator<Item = S>,
+    S: Into<String>,
+{
+    Table::new(headers)
+}
+
 /// An inline `[ text ]` badge.
 #[must_use]
 pub fn badge(text: impl Into<String>, role: Role) -> Badge {
@@ -199,7 +210,7 @@ pub mod prelude {
         badge, banner, callout, caps, debug, error, info, list, note, ok, panel, rule,
         rule_labelled, warn, Print,
     };
-    pub use crate::blocks::{Badge, Banner, Callout, List, Panel, Rule};
+    pub use crate::blocks::{Badge, Banner, Callout, List, Panel, Rule, Table};
     pub use crate::caps::{Capability, ColorLevel};
     pub use crate::ir::CalloutSeverity;
     pub use crate::theme::{Role, Theme};

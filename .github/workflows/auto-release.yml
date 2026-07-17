@@ -1,0 +1,21 @@
+# ★★ AUTO-RELEASE — kazari ships to crates.io on every merge to main.
+#
+# Uses the per-language cargo reusable DIRECTLY (kazari is a single crate),
+# per the known-issue: the polymorphic auto-release.yml@main shim
+# startup_failures for consumers (2-level secrets: inherit). The 1-level
+# direct call is the working path.
+name: auto-release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      bump-type:
+        description: "patch | minor | major"
+        required: false
+        default: patch
+
+jobs:
+  release:
+    uses: pleme-io/substrate/.github/workflows/cargo-auto-release.yml@main
+    secrets: inherit
