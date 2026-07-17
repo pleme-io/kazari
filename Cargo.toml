@@ -1,0 +1,42 @@
+[package]
+name = "kazari"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89.0"
+license = "MIT"
+description = "飾り — the line-output face of the fleet. Typed, capability-honest, dark-Nord/blackmatter beautiful CLI output blocks. The sibling of seki (the prompt) over one ishou/irodori token spine."
+repository = "https://github.com/pleme-io/kazari"
+keywords = ["cli", "ansi", "terminal", "nord", "pretty"]
+categories = ["command-line-interface"]
+
+# M0 is a single crate with modules mirroring the destination crate family
+# (kazari-caps / kazari-style / kazari-ir / kazari-render / kazari-blocks).
+# It splits into that workspace at M2 — noted, not enshrined.
+
+[dependencies]
+# CONSUME (no fork): irodori is the Nord palette + linear-space color math
+# source of truth. The quantizers reuse Color::to_linear so degrade is
+# nearest-in-LINEAR-space (matte relationships survive).
+irodori = { path = "../irodori" }
+# WRAP: anstyle is the typed SGR surface. Every escape byte comes from
+# anstyle's tested Display — kazari never hand-spells "\x1b" or format!()s a
+# sequence (TYPED EMISSION).
+anstyle = "1"
+# Width is measured on UN-escaped text (the escape-blind-width trap closed by
+# construction: Fragments carry text + role separately).
+unicode-width = "0.2"
+# Capability probe: real terminal width when we have a tty.
+terminal_size = "0.4"
+
+[dev-dependencies]
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+# these fire on tidy, idiomatic code — relaxed per the fleet convention
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+must_use_candidate = "allow"
+cast_possible_truncation = "allow"
+cast_sign_loss = "allow"
+cast_precision_loss = "allow"

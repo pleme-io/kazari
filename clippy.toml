@@ -1,0 +1,7 @@
+# TYPED EMISSION (org ★★ rule): std::format!() of ANSI/escape syntax is
+# banned fleet-wide. kazari is the crate that makes this ban keepable — it
+# emits every styled byte through anstyle's typed Display, never a
+# hand-spelled sequence. So kazari holds itself to the strictest bar: zero
+# format!(). All string assembly goes through write!/writeln! into a buffer
+# or a Display impl; all styling goes through anstyle.
+disallowed-macros = ["std::format"]
