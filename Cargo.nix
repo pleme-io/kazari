@@ -39,7 +39,7 @@ rec {
   #
 
   rootCrate = rec {
-    packageId = "kazari";
+    packageId = "pleme-io-kazari";
 
     # Use this attribute to refer to the derivation building your root crate package.
     # You can override the features with rootCrate.build.override { features = [ "default" "feature1" ... ]; }.
@@ -55,10 +55,10 @@ rec {
   # You can override the features with
   # workspaceMembers."${crateName}".build.override { features = [ "default" "feature1" ... ]; }.
   workspaceMembers = {
-    "kazari" = rec {
-      packageId = "kazari";
+    "pleme-io-kazari" = rec {
+      packageId = "pleme-io-kazari";
       build = internal.buildRustCrateWithFeatures {
-        packageId = "kazari";
+        packageId = "pleme-io-kazari";
       };
 
       # Debug support which might change between releases.
@@ -178,31 +178,6 @@ rec {
         ];
 
       };
-      "kazari" = rec {
-        crateName = "kazari";
-        version = "0.1.2";
-        edition = "2024";
-        src = lib.cleanSourceWith { filter = sourceFilter;  src = ./.; };
-        dependencies = [
-          {
-            name = "anstyle";
-            packageId = "anstyle";
-          }
-          {
-            name = "irodori";
-            packageId = "irodori";
-          }
-          {
-            name = "terminal_size";
-            packageId = "terminal_size";
-          }
-          {
-            name = "unicode-width";
-            packageId = "unicode-width";
-          }
-        ];
-
-      };
       "libc" = rec {
         crateName = "libc";
         version = "0.2.189";
@@ -231,6 +206,32 @@ rec {
           "rustc-dep-of-std" = [ "core" "no_std" ];
         };
         resolvedDefaultFeatures = [ "auxvec" "elf" "errno" "general" "ioctl" "no_std" ];
+      };
+      "pleme-io-kazari" = rec {
+        crateName = "pleme-io-kazari";
+        version = "0.1.3";
+        edition = "2024";
+        src = lib.cleanSourceWith { filter = sourceFilter;  src = ./.; };
+        libName = "kazari";
+        dependencies = [
+          {
+            name = "anstyle";
+            packageId = "anstyle";
+          }
+          {
+            name = "irodori";
+            packageId = "irodori";
+          }
+          {
+            name = "terminal_size";
+            packageId = "terminal_size";
+          }
+          {
+            name = "unicode-width";
+            packageId = "unicode-width";
+          }
+        ];
+
       };
       "proc-macro2" = rec {
         crateName = "proc-macro2";
@@ -477,9 +478,9 @@ rec {
       };
       "syn" = rec {
         crateName = "syn";
-        version = "3.0.2";
+        version = "3.0.3";
         edition = "2021";
-        sha256 = "18w7g5b9c585jw2rgvhygqdli8hq7w2jcds4h05lgz5plbbdc1x2";
+        sha256 = "18srnql3cd39j9q6hf1az02p67rlr1rf6njx9zx4vxj9i3jvmsak";
         authors = [
           "David Tolnay <dtolnay@gmail.com>"
         ];
