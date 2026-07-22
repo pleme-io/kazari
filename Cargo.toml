@@ -1,9 +1,9 @@
 [package]
 # crates.io publish name is `pleme-io-kazari`: the bare `kazari` name is held on
 # crates.io by an unrelated 2021 crate (owner `nuta`, github.com/nuta/kazari), so
-# it is permanently unavailable to us. This is the org AUTO-RELEASE name-conflict
-# convention ("rename to pleme-io-<original>"). The LIB name stays `kazari` (see
-# [lib] below) so every `use kazari::` — here and in consumers via
+# it is permanently unavailable to us — the org AUTO-RELEASE name-conflict
+# convention ("rename to pleme-io-<original>"). The lib name stays `kazari` (the
+# lib target below pins it), so every `use kazari::` — here and in consumers via
 # `kazari = { package = "pleme-io-kazari" }` — is unchanged.
 name = "pleme-io-kazari"
 version = "0.1.2"
