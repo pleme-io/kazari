@@ -16,9 +16,11 @@ categories = ["command-line-interface"]
 [dependencies]
 # CONSUME (no fork): irodori is the Nord palette + linear-space color math
 # source of truth. The quantizers reuse Color::to_linear so degrade is
-# nearest-in-LINEAR-space (matte relationships survive). Git dep (pinned) so
-# kazari is fleet-consumable (matches seki's ishou-tokens pattern).
-irodori = { git = "https://github.com/pleme-io/irodori", rev = "1c40add39ed45c9cfed5eda1840824015f35393c" }
+# nearest-in-LINEAR-space (matte relationships survive). crates.io version dep
+# (irodori auto-releases to crates.io) — a git dep here would make kazari itself
+# unpublishable (crates.io refuses git deps). This is the chain-of-publishability
+# fix: irodori → kazari → sui-spec all reference each other by published version.
+irodori = "0.2"
 # WRAP: anstyle is the typed SGR surface. Every escape byte comes from
 # anstyle's tested Display — kazari never hand-spells "\x1b" or format!()s a
 # sequence (TYPED EMISSION).
