@@ -74,7 +74,7 @@ impl TerminalEnvironment<Stderr> {
     /// stderr, capabilities probed from the real environment.
     #[must_use]
     pub fn stderr() -> Self {
-        Self { caps: Capability::probe(), theme: Theme::default(), out: io::stderr() }
+        Self { caps: Capability::probe_stream(crate::caps::Stream::Stderr), theme: Theme::default(), out: io::stderr() }
     }
 }
 

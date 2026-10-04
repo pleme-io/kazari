@@ -43,7 +43,7 @@ pub mod theme;
 
 pub use blocks::{Badge, Banner, Callout, List, ListItem, Panel, Rule, Table};
 pub use document::{Document, Node};
-pub use caps::{Background, Capability, ColorLevel, Rgb};
+pub use caps::{Background, Capability, ColorLevel, Rgb, Stream};
 pub use ir::{CalloutSeverity, Fragment, StyledLine};
 pub use render::{render, BlockRender, MockEnvironment, RenderEnvironment, TerminalEnvironment};
 pub use theme::{Role, Theme};
@@ -214,7 +214,7 @@ pub mod prelude {
     };
     pub use crate::blocks::{Badge, Banner, Callout, List, Panel, Rule, Table};
     pub use crate::document::{Document, Node};
-    pub use crate::caps::{Capability, ColorLevel};
+    pub use crate::caps::{Capability, ColorLevel, Stream};
     pub use crate::ir::{CalloutSeverity, Fragment, StyledLine};
     pub use crate::theme::{Role, Theme};
 }

@@ -185,14 +185,28 @@ pub struct Capability {
     pub background: Background,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Stream {
+    Stdout,
+    Stderr,
+}
+
 impl Capability {
     /// Probe the real environment through a sealed precedence fold
     /// (mirrors `shikumi::resolve_progressive`): `CLICOLOR_FORCE` >
     /// `NO_COLOR` > `!is_tty` > `COLORTERM` > `TERM` > none.
     #[must_use]
     pub fn probe() -> Self {
+        Self::probe_stream(Stream::Stdout)
+    }
+
+    #[must_use]
+    pub fn probe_stream(stream: Stream) -> Self {
         use std::io::IsTerminal;
-        let is_tty = std::io::stdout().is_terminal();
+        let is_tty = match stream {
+            Stream::Stdout => std::io::stdout().is_terminal(),
+            Stream::Stderr => std::io::stderr().is_terminal(),
+        };
         let level = resolve_level(is_tty);
         Self {
             level,
