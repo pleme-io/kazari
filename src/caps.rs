@@ -200,6 +200,17 @@ impl Capability {
     }
 
     #[must_use]
+    pub fn cached(stream: Stream) -> Self {
+        static STDOUT: std::sync::OnceLock<Capability> = std::sync::OnceLock::new();
+        static STDERR: std::sync::OnceLock<Capability> = std::sync::OnceLock::new();
+        let cell = match stream {
+            Stream::Stdout => &STDOUT,
+            Stream::Stderr => &STDERR,
+        };
+        *cell.get_or_init(|| Self::probe_stream(stream))
+    }
+
+    #[must_use]
     pub fn probe_stream(stream: Stream) -> Self {
         use std::io::IsTerminal;
         let is_tty = match stream {

@@ -155,6 +155,11 @@ pub fn paint_at(text: &str, role: Role, caps: &Capability) -> String {
     style::StyleAtom::resolve(role, Theme::default(), caps, false, false).paint(text)
 }
 
+#[must_use]
+pub fn paint_styled_at(text: &str, role: Role, bold: bool, dim: bool, caps: &Capability) -> String {
+    style::StyleAtom::resolve(role, Theme::default(), caps, bold, dim).paint(text)
+}
+
 /// Style `text` in a semantic [`Role`] at the *probed* terminal capability.
 #[must_use]
 pub fn paint(text: &str, role: Role) -> String {
@@ -195,6 +200,10 @@ pub trait Print: BlockRender {
     /// Render into an explicit environment (the test/compose path).
     fn render_to<E: RenderEnvironment>(&self, env: &mut E) -> std::io::Result<()> {
         render(self, env)
+    }
+
+    fn to_terminal_string(&self, stream: Stream) -> String {
+        self.to_string_at(Capability::cached(stream))
     }
 
     /// Render to a `String` at a fixed capability (used by tests + snapshots).

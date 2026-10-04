@@ -226,3 +226,12 @@ fn nord_rgb_quantizes_to_the_nord_slot_not_grey() {
     assert_eq!(Rgb::from_color(n.polar_night[3]).to_ansi16(), anstyle::AnsiColor::BrightBlack);
     assert_eq!(Rgb::from_color(n.snow_storm[2]).to_ansi16(), anstyle::AnsiColor::BrightWhite);
 }
+
+#[test]
+fn styled_paint_and_cached_probe() {
+    let out = kazari::paint_styled_at("x", Role::Error, true, false, &at(ColorLevel::Truecolor, true));
+    assert!(out.contains("\u{1b}[1m") && out.contains("38;2;191;97;106"), "{out:?}");
+    assert_eq!(Capability::cached(Stream::Stdout), Capability::cached(Stream::Stdout));
+    let s = kazari::ok("done").to_terminal_string(Stream::Stderr);
+    assert!(s.contains("done"));
+}
