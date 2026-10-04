@@ -164,3 +164,31 @@ fn list_tasks_carry_severity() {
     assert!(out.contains("[ERROR] linked"), "task error tag: {out:?}");
     assert!(!out.contains('\u{1b}'), "None ⇒ zero escapes: {out:?}");
 }
+
+#[test]
+fn styled_cells_keep_alignment_and_paint_their_role() {
+    let table = kazari::table(["child", "state"])
+        .row_fragments([Fragment::plain("deployment"), Fragment::styled("running", Role::Ok)])
+        .row_fragments([Fragment::plain("job"), Fragment::styled("dead", Role::Error)]);
+    let plain = table.to_string_at(at(ColorLevel::None, false));
+    let lines: Vec<&str> = plain.lines().collect();
+    assert_eq!(lines[2].find("running"), lines[3].find("dead"), "{plain:?}");
+    let colored = table.to_string_at(at(ColorLevel::Truecolor, true));
+    assert!(colored.contains("38;2;163;190;140mrunning"), "{colored:?}");
+    assert!(colored.contains("38;2;191;97;106mdead"), "{colored:?}");
+
+    let panel = kazari::panel().row("store", "path").row_role("state", "live", Role::Ok);
+    assert!(panel.to_string_at(at(ColorLevel::Truecolor, true)).contains("38;2;163;190;140mlive"));
+}
+
+#[test]
+fn document_matrix_every_depth() {
+    let doc = Document::new(Node::map([("store", Node::status("live", CalloutSeverity::Ok)), ("revision", Node::num(7))]));
+    for level in ColorLevel::ALL {
+        let out = doc.to_string_at(at(level, level.is_colored()));
+        assert_eq!(out.contains('\u{1b}'), level.is_colored(), "{}: {out:?}", level_name(level));
+        if level == ColorLevel::None {
+            assert_eq!(out, "store: live\nrevision: 7\n");
+        }
+    }
+}

@@ -212,7 +212,7 @@ impl BlockRender for Rule {
 #[derive(Clone, Debug, Default)]
 pub struct Panel {
     pub title: Option<String>,
-    pub rows: Vec<(String, String)>,
+    pub rows: Vec<(String, StyledLine)>,
 }
 
 impl Panel {
@@ -227,8 +227,18 @@ impl Panel {
     }
 
     #[must_use]
-    pub fn row(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
-        self.rows.push((key.into(), value.into()));
+    pub fn row(self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.row_role(key, value, Role::Text)
+    }
+
+    #[must_use]
+    pub fn row_role(self, key: impl Into<String>, value: impl Into<String>, role: Role) -> Self {
+        self.row_fragments(key, vec![Fragment::styled(value, role)])
+    }
+
+    #[must_use]
+    pub fn row_fragments(mut self, key: impl Into<String>, value: StyledLine) -> Self {
+        self.rows.push((key.into(), value));
         self
     }
 }
@@ -251,11 +261,12 @@ impl BlockRender for Panel {
             key.push_str("  ");
             key.push_str(k);
             key.push_str(&repeat(" ", pad));
-            lines.push(vec![
+            let mut line = vec![
                 Fragment::styled(key, Role::TextMuted),
                 Fragment::styled(" : ", Role::TextDim),
-                Fragment::styled(v.clone(), Role::Text),
-            ]);
+            ];
+            line.extend(v.iter().cloned());
+            lines.push(line);
         }
         lines
     }
@@ -364,7 +375,7 @@ impl BlockRender for Badge {
 #[derive(Clone, Debug, Default)]
 pub struct Table {
     pub headers: Vec<String>,
-    pub rows: Vec<Vec<String>>,
+    pub rows: Vec<Vec<Fragment>>,
 }
 
 impl Table {
@@ -378,12 +389,17 @@ impl Table {
     }
 
     #[must_use]
-    pub fn row<I, S>(mut self, cells: I) -> Self
+    pub fn row<I, S>(self, cells: I) -> Self
     where
         I: IntoIterator<Item = S>,
         S: Into<String>,
     {
-        self.rows.push(cells.into_iter().map(Into::into).collect());
+        self.row_fragments(cells.into_iter().map(|c| Fragment::styled(c, Role::Text)))
+    }
+
+    #[must_use]
+    pub fn row_fragments<I: IntoIterator<Item = Fragment>>(mut self, cells: I) -> Self {
+        self.rows.push(cells.into_iter().collect());
         self
     }
 }
@@ -401,7 +417,7 @@ impl BlockRender for Table {
         for row in &self.rows {
             for (i, cell) in row.iter().enumerate() {
                 if i < ncols {
-                    widths[i] = widths[i].max(width_of(cell));
+                    widths[i] = widths[i].max(cell.width());
                 }
             }
         }
@@ -437,8 +453,13 @@ impl BlockRender for Table {
                 if i > 0 {
                     line.push(Fragment::plain(gap));
                 }
-                let cell = row.get(i).map_or("", String::as_str);
-                line.push(Fragment::styled(pad_cell(cell, widths[i]), Role::Text));
+                match row.get(i) {
+                    Some(cell) => {
+                        line.push(cell.clone());
+                        line.push(Fragment::plain(repeat(" ", widths[i].saturating_sub(cell.width()))));
+                    }
+                    None => line.push(Fragment::plain(repeat(" ", widths[i]))),
+                }
             }
             lines.push(line);
         }

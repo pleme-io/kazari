@@ -34,6 +34,7 @@
 
 pub mod blocks;
 pub mod caps;
+pub mod document;
 pub mod ir;
 pub mod lisp;
 pub mod render;
@@ -41,6 +42,7 @@ pub mod style;
 pub mod theme;
 
 pub use blocks::{Badge, Banner, Callout, List, ListItem, Panel, Rule, Table};
+pub use document::{Document, Node};
 pub use caps::{Background, Capability, ColorLevel, Rgb};
 pub use ir::{CalloutSeverity, Fragment, StyledLine};
 pub use render::{render, BlockRender, MockEnvironment, RenderEnvironment, TerminalEnvironment};
@@ -211,7 +213,8 @@ pub mod prelude {
         rule_labelled, warn, Print,
     };
     pub use crate::blocks::{Badge, Banner, Callout, List, Panel, Rule, Table};
+    pub use crate::document::{Document, Node};
     pub use crate::caps::{Capability, ColorLevel};
-    pub use crate::ir::CalloutSeverity;
+    pub use crate::ir::{CalloutSeverity, Fragment, StyledLine};
     pub use crate::theme::{Role, Theme};
 }
