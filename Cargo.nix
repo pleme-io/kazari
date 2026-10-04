@@ -240,7 +240,7 @@ rec {
       };
       "pleme-io-kazari" = rec {
         crateName = "pleme-io-kazari";
-        version = "0.2.2";
+        version = "0.2.3";
         edition = "2024";
         src = lib.cleanSourceWith { filter = sourceFilter;  src = ./.; };
         libName = "kazari";
