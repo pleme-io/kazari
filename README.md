@@ -35,6 +35,24 @@ Panel::titled("store")
 Piped or under `NO_COLOR`, the same code emits **zero escape bytes** and a
 plain `[TAG]` / ASCII-glyph projection.
 
+Structured replies render as a `Document`: nested key/value output whose
+characters are valid YAML on every rung, with keys in the accent hue and
+state words painted at their severity. With the `json` feature a
+`serde_json::Value` converts straight in.
+
+```rust
+let doc = Document::new(Node::from(&value))
+    .classify(|_path, text| (text == "live").then_some(CalloutSeverity::Ok));
+doc.print()?;
+```
+
+`Panel::row_role` / `row_fragments` and `Table::row_fragments` take styled
+cells, `Table::indented(n)` aligns a table under panel rows, and
+`Capability::probe_stream(Stream::Stderr)` probes the stream actually being
+written.
+
+Consumers: `sui` (sui-spec), `engenho` (`engenho status`, `engenho ctl`).
+
 ## What it owns vs reuses
 
 - **OWNS** (the ~15% genuinely-new, 0-hit fleet gap): the `ColorLevel`
