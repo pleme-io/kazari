@@ -210,7 +210,7 @@ impl<T: BlockRender + ?Sized> Print for T {}
 pub mod prelude {
     pub use crate::{
         badge, banner, callout, caps, debug, error, info, list, note, ok, panel, rule,
-        rule_labelled, warn, Print,
+        rule_labelled, table, warn, Print,
     };
     pub use crate::blocks::{Badge, Banner, Callout, List, Panel, Rule, Table};
     pub use crate::document::{Document, Node};

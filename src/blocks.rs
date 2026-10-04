@@ -376,6 +376,7 @@ impl BlockRender for Badge {
 pub struct Table {
     pub headers: Vec<String>,
     pub rows: Vec<Vec<Fragment>>,
+    pub indent: usize,
 }
 
 impl Table {
@@ -385,7 +386,13 @@ impl Table {
         I: IntoIterator<Item = S>,
         S: Into<String>,
     {
-        Self { headers: headers.into_iter().map(Into::into).collect(), rows: Vec::new() }
+        Self { headers: headers.into_iter().map(Into::into).collect(), rows: Vec::new(), indent: 0 }
+    }
+
+    #[must_use]
+    pub fn indented(mut self, indent: usize) -> Self {
+        self.indent = indent;
+        self
     }
 
     #[must_use]
@@ -432,34 +439,46 @@ impl BlockRender for Table {
         let mut lines: Vec<StyledLine> = Vec::new();
 
         // Header row (Primary, bold).
-        let mut header: StyledLine = Vec::new();
+        let lead = || -> StyledLine {
+            if self.indent == 0 { Vec::new() } else { vec![Fragment::plain(repeat(" ", self.indent))] }
+        };
+        let last = ncols - 1;
+        let mut header: StyledLine = lead();
         for (i, h) in self.headers.iter().enumerate() {
             if i > 0 {
                 header.push(Fragment::plain(gap));
             }
-            header.push(Fragment::accent(pad_cell(h, widths[i]), Role::Primary));
+            if i == last {
+                header.push(Fragment::accent(h.clone(), Role::Primary));
+            } else {
+                header.push(Fragment::accent(pad_cell(h, widths[i]), Role::Primary));
+            }
         }
         lines.push(header);
 
         // Dim rule under the header, spanning the table.
         let total: usize = widths.iter().sum::<usize>() + gap.len() * ncols.saturating_sub(1);
         let g = glyphs(caps);
-        lines.push(vec![Fragment::faint(repeat(g.h, total), Role::Border)]);
+        let mut underline = lead();
+        underline.push(Fragment::faint(repeat(g.h, total), Role::Border));
+        lines.push(underline);
 
         // Data rows (Text).
         for row in &self.rows {
-            let mut line: StyledLine = Vec::new();
+            let mut line: StyledLine = lead();
             for i in 0..ncols {
                 if i > 0 {
                     line.push(Fragment::plain(gap));
                 }
-                match row.get(i) {
-                    Some(cell) => {
-                        line.push(cell.clone());
-                        line.push(Fragment::plain(repeat(" ", widths[i].saturating_sub(cell.width()))));
-                    }
-                    None => line.push(Fragment::plain(repeat(" ", widths[i]))),
+                let cell = row.get(i).cloned().unwrap_or_else(|| Fragment::plain(""));
+                let pad = widths[i].saturating_sub(cell.width());
+                line.push(cell);
+                if i < last && pad > 0 {
+                    line.push(Fragment::plain(repeat(" ", pad)));
                 }
+            }
+            while line.last().is_some_and(|f| f.text.trim().is_empty()) {
+                line.pop();
             }
             lines.push(line);
         }

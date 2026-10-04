@@ -192,3 +192,12 @@ fn document_matrix_every_depth() {
         }
     }
 }
+
+#[test]
+fn table_rows_carry_no_trailing_space_and_honour_indent() {
+    let out = kazari::table(["a", "bb"]).row(["xyz", "1"]).row(["q", ""]).indented(2).to_string_at(at(ColorLevel::None, false));
+    for line in out.lines() {
+        assert!(line.starts_with("  "), "{line:?}");
+        assert_eq!(line, line.trim_end(), "{line:?}");
+    }
+}
