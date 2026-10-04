@@ -6,7 +6,7 @@
 //! surfaces here, not in a user's pipe.
 
 use kazari::prelude::*;
-use kazari::{Capability, ColorLevel, Print};
+use kazari::{Capability, ColorLevel, Print, Rgb};
 
 fn at(level: ColorLevel, unicode: bool) -> Capability {
     Capability::fixed(level, 80, unicode)
@@ -200,4 +200,29 @@ fn table_rows_carry_no_trailing_space_and_honour_indent() {
         assert!(line.starts_with("  "), "{line:?}");
         assert_eq!(line, line.trim_end(), "{line:?}");
     }
+}
+
+#[test]
+fn every_role_lands_on_its_nord_terminal_slot_at_16_colours() {
+    let theme = Theme::default();
+    for role in Role::ALL {
+        let out = kazari::paint_at("x", role, &at(ColorLevel::Ansi16, true));
+        let expected = anstyle::Style::new().fg_color(Some(anstyle::Color::Ansi(theme.ansi16(role)))).render().to_string();
+        assert!(out.starts_with(&expected), "{role:?}: {out:?}");
+    }
+    assert_eq!(theme.ansi16(Role::Error), anstyle::AnsiColor::Red);
+    assert_eq!(theme.ansi16(Role::Ok), anstyle::AnsiColor::Green);
+}
+
+#[test]
+fn nord_rgb_quantizes_to_the_nord_slot_not_grey() {
+    let n = irodori::NORD;
+    assert_eq!(Rgb::from_color(n.aurora[0]).to_ansi16(), anstyle::AnsiColor::Red);
+    assert_eq!(Rgb::from_color(n.aurora[3]).to_ansi16(), anstyle::AnsiColor::Green);
+    assert_eq!(Rgb::from_color(n.frost[2]).to_ansi16(), anstyle::AnsiColor::Blue);
+    assert_eq!(Rgb::from_color(n.aurora[4]).to_ansi16(), anstyle::AnsiColor::Magenta);
+    assert_eq!(Rgb::from_color(n.aurora[2]).to_ansi16(), anstyle::AnsiColor::Yellow);
+    assert_eq!(Rgb::from_color(n.frost[1]).to_ansi16(), anstyle::AnsiColor::Cyan);
+    assert_eq!(Rgb::from_color(n.polar_night[3]).to_ansi16(), anstyle::AnsiColor::BrightBlack);
+    assert_eq!(Rgb::from_color(n.snow_storm[2]).to_ansi16(), anstyle::AnsiColor::BrightWhite);
 }

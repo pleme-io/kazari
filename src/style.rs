@@ -33,8 +33,11 @@ impl StyleAtom {
         if caps.level == ColorLevel::None {
             return Self::none();
         }
-        let rgb = theme.color(role);
-        let mut style = anstyle::Style::new().fg_color(Some(rgb.to_anstyle(caps.level)));
+        let color = match caps.level {
+            ColorLevel::Ansi16 => anstyle::Color::Ansi(theme.ansi16(role)),
+            _ => theme.color(role).to_anstyle(caps.level),
+        };
+        let mut style = anstyle::Style::new().fg_color(Some(color));
         if bold {
             style = style.bold();
         }
@@ -61,6 +64,24 @@ impl StyleAtom {
             style = style.dimmed();
         }
         Self(style)
+    }
+
+    #[must_use]
+    pub fn styled(
+        fg: Option<anstyle::Color>,
+        bg: Option<anstyle::Color>,
+        effects: anstyle::Effects,
+        caps: &Capability,
+    ) -> Self {
+        if caps.level == ColorLevel::None {
+            return Self::none();
+        }
+        Self(anstyle::Style::new().fg_color(fg).bg_color(bg).effects(effects))
+    }
+
+    #[must_use]
+    pub fn style(self) -> anstyle::Style {
+        self.0
     }
 
     /// Render `text` in this style into a `String` (the inline API). Infallible

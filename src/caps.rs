@@ -122,40 +122,39 @@ impl Rgb {
         }
     }
 
-    /// Nearest of the 16 standard ANSI colors, in linear space. The
-    /// terminal's own palette renders the slot — on a Nord terminal, a Nord
-    /// slot looks Nord.
+    /// The ANSI slot that names this color's hue: low-chroma colors land on
+    /// the grey slots by lightness, every other color on the slot of its hue.
+    /// The terminal's own palette renders the slot — on a Nord terminal, a
+    /// Nord slot looks Nord.
     #[must_use]
     pub fn to_ansi16(self) -> AnsiColor {
-        // Standard xterm 16-color reference RGBs.
-        const REF: [(Rgb, AnsiColor); 16] = [
-            (Rgb::new(0x00, 0x00, 0x00), AnsiColor::Black),
-            (Rgb::new(0x80, 0x00, 0x00), AnsiColor::Red),
-            (Rgb::new(0x00, 0x80, 0x00), AnsiColor::Green),
-            (Rgb::new(0x80, 0x80, 0x00), AnsiColor::Yellow),
-            (Rgb::new(0x00, 0x00, 0x80), AnsiColor::Blue),
-            (Rgb::new(0x80, 0x00, 0x80), AnsiColor::Magenta),
-            (Rgb::new(0x00, 0x80, 0x80), AnsiColor::Cyan),
-            (Rgb::new(0xc0, 0xc0, 0xc0), AnsiColor::White),
-            (Rgb::new(0x80, 0x80, 0x80), AnsiColor::BrightBlack),
-            (Rgb::new(0xff, 0x00, 0x00), AnsiColor::BrightRed),
-            (Rgb::new(0x00, 0xff, 0x00), AnsiColor::BrightGreen),
-            (Rgb::new(0xff, 0xff, 0x00), AnsiColor::BrightYellow),
-            (Rgb::new(0x00, 0x00, 0xff), AnsiColor::BrightBlue),
-            (Rgb::new(0xff, 0x00, 0xff), AnsiColor::BrightMagenta),
-            (Rgb::new(0x00, 0xff, 0xff), AnsiColor::BrightCyan),
-            (Rgb::new(0xff, 0xff, 0xff), AnsiColor::BrightWhite),
-        ];
-        let mut best = AnsiColor::White;
-        let mut best_d = f32::MAX;
-        for (rgb, ansi) in REF {
-            let d = linear_dist(self, rgb);
-            if d < best_d {
-                best_d = d;
-                best = ansi;
-            }
+        let (r, g, b) = (i32::from(self.r), i32::from(self.g), i32::from(self.b));
+        let max = r.max(g).max(b);
+        let min = r.min(g).min(b);
+        let chroma = max - min;
+        if chroma < 38 {
+            return match (max + min) / 2 {
+                l if l < 0x30 => AnsiColor::Black,
+                l if l < 0x90 => AnsiColor::BrightBlack,
+                l if l < 0xE6 => AnsiColor::White,
+                _ => AnsiColor::BrightWhite,
+            };
         }
-        best
+        let sector = if max == r {
+            (g - b) * 60 / chroma
+        } else if max == g {
+            120 + (b - r) * 60 / chroma
+        } else {
+            240 + (r - g) * 60 / chroma
+        };
+        match sector.rem_euclid(360) {
+            20..70 => AnsiColor::Yellow,
+            70..160 => AnsiColor::Green,
+            160..200 => AnsiColor::Cyan,
+            200..270 => AnsiColor::Blue,
+            270..330 => AnsiColor::Magenta,
+            _ => AnsiColor::Red,
+        }
     }
 }
 
@@ -326,8 +325,9 @@ mod tests {
     fn ansi16_anchors() {
         assert_eq!(Rgb::new(0, 0, 0).to_ansi16(), AnsiColor::Black);
         assert_eq!(Rgb::new(255, 255, 255).to_ansi16(), AnsiColor::BrightWhite);
-        assert_eq!(Rgb::new(255, 0, 0).to_ansi16(), AnsiColor::BrightRed);
+        assert_eq!(Rgb::new(255, 0, 0).to_ansi16(), AnsiColor::Red);
         assert_eq!(Rgb::new(128, 0, 0).to_ansi16(), AnsiColor::Red);
+        assert_eq!(Rgb::new(0, 255, 0).to_ansi16(), AnsiColor::Green);
     }
 
     #[test]

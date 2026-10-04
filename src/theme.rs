@@ -43,6 +43,22 @@ pub enum Role {
     Ident,
 }
 
+impl Role {
+    pub const ALL: [Role; 11] = [
+        Role::Primary,
+        Role::Text,
+        Role::TextMuted,
+        Role::TextDim,
+        Role::Border,
+        Role::Error,
+        Role::Warn,
+        Role::Pending,
+        Role::Ok,
+        Role::Info,
+        Role::Ident,
+    ];
+}
+
 /// A resolved palette. M0 ships the opinionated dark-Nord default; M1 adds
 /// Vellum / PolarVeil / a fully custom map via `ishou_tokens::FleetTheme`.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -58,6 +74,25 @@ impl Default for Theme {
 }
 
 impl Theme {
+    #[must_use]
+    pub fn ansi16(self, role: Role) -> anstyle::AnsiColor {
+        use anstyle::AnsiColor as A;
+        match self {
+            Theme::PlemeDark => match role {
+                Role::Primary => A::Cyan,
+                Role::Text => A::BrightWhite,
+                Role::TextMuted => A::White,
+                Role::TextDim | Role::Border => A::BrightBlack,
+                Role::Error => A::Red,
+                Role::Warn => A::Yellow,
+                Role::Pending => A::BrightYellow,
+                Role::Ok => A::Green,
+                Role::Info => A::Blue,
+                Role::Ident => A::Magenta,
+            },
+        }
+    }
+
     /// Resolve a role to a concrete color. The ONLY hex source is
     /// `irodori::NORD` — kazari re-inlines nothing.
     #[must_use]
