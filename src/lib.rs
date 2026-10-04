@@ -32,6 +32,8 @@
 //! Panel::titled("store").row("path", "/nix/store/…").row("size", "42 MiB").print().unwrap();
 //! ```
 
+pub use anstyle;
+
 pub mod blocks;
 pub mod caps;
 pub mod document;
