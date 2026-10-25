@@ -421,9 +421,21 @@ impl Meter {
         let mut out: Vec<Fragment> = Vec::new();
         for cell in 0..self.width {
             let start = cell * 8;
-            let (glyph, role) = match ends.iter().find(|(end, _)| *end > start) {
+            let stop = start + 8;
+            let mut begin = 0;
+            let mut covered = 0;
+            let mut widest: Option<(usize, Role)> = None;
+            for &(end, role) in &ends {
+                let share = end.min(stop).saturating_sub(begin.max(start));
+                covered += share;
+                if share > 0 && widest.is_none_or(|(w, _)| share > w) {
+                    widest = Some((share, role));
+                }
+                begin = end;
+            }
+            let (glyph, role) = match widest {
                 None => (self.track, self.track_role),
-                Some(&(end, role)) => self.cell(end - start, role),
+                Some((_, role)) => self.cell(covered, role),
             };
             push_merged(&mut out, glyph, role);
         }

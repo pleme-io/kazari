@@ -40,6 +40,7 @@ pub mod document;
 pub mod ir;
 pub mod lisp;
 pub mod live;
+pub mod progress;
 pub mod render;
 pub mod style;
 pub mod theme;
@@ -230,5 +231,6 @@ pub mod prelude {
     pub use crate::caps::{Capability, ColorLevel, Stream};
     pub use crate::ir::{CalloutSeverity, Fragment, StyledLine};
     pub use crate::live::{Live, Meter, Pulse, Spark, Spinner};
+    pub use crate::progress::{Board, Labels, LaneKind, Outcome};
     pub use crate::theme::{Role, Theme};
 }

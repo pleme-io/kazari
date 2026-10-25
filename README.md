@@ -61,6 +61,12 @@ the last frame once. `Spinner`, `Meter` (eighth blocks, multi-segment),
 `Spark` and `Pulse` build the fragments; each takes an injected tick, never
 a clock.
 
+`kazari::progress::Board` is the live view of a graph of jobs: the plan
+folded into waves that converge on the root, the jobs running now with their
+phase or transfer meter, and the completion rate. A finished wave flashes,
+then settles. `cargo run --example progress` shows a 400-job graph on 8
+workers.
+
 ```rust
 let mut live = Live::stderr();
 let bar = Meter::new(24).segments(&[(0.4, Role::Ok), (0.2, Role::Primary)]);
