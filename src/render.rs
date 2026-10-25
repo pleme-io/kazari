@@ -43,7 +43,7 @@ where
     Ok(())
 }
 
-fn emit_line(line: &StyledLine, caps: &Capability, theme: Theme, w: &mut dyn Write) -> io::Result<()> {
+pub(crate) fn emit_line(line: &StyledLine, caps: &Capability, theme: Theme, w: &mut dyn Write) -> io::Result<()> {
     for frag in line {
         match frag.role {
             Some(role) => {

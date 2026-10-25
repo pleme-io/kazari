@@ -51,6 +51,24 @@ cells, `Table::indented(n)` aligns a table under panel rows, and
 `Capability::probe_stream(Stream::Stderr)` probes the stream actually being
 written.
 
+`kazari::live` redraws a region of lines in place. On a colored tty each
+`Live::frame` repaints inside synchronized output (mode 2026), truncated to
+the terminal width by display width, at most once per 80 ms; the cursor is
+hidden while live and restored by `finish()` or drop. `commit` prints a
+permanent line above the region. Piped, under `NO_COLOR` or on a dumb
+terminal, nothing moves: `commit` appends plain lines and `finish()` prints
+the last frame once. `Spinner`, `Meter` (eighth blocks, multi-segment),
+`Spark` and `Pulse` build the fragments; each takes an injected tick, never
+a clock.
+
+```rust
+let mut live = Live::stderr();
+let bar = Meter::new(24).segments(&[(0.4, Role::Ok), (0.2, Role::Primary)]);
+live.frame(&[[vec![Spinner::new().fragment(tick)], bar].concat()])?;
+live.commit(&vec![Fragment::styled("✓ hello", Role::Ok)])?;
+live.finish()?;
+```
+
 Consumers: `sui` (sui-spec), `engenho` (`engenho status`, `engenho ctl`).
 
 ## What it owns vs reuses
@@ -59,7 +77,8 @@ Consumers: `sui` (sui-spec), `engenho` (`engenho status`, `engenho ctl`).
   capability wall, the `RGB→256→16` nearest-in-**linear** quantizer, the
   line-block AST.
 - **CONSUMES** `irodori` (Nord palette, no fork) · **WRAPS** `anstyle` (typed
-  SGR — the escape bytes are anstyle's, never hand-spelled).
+  SGR — the escape bytes are anstyle's, never hand-spelled). The cursor and
+  screen controls a live region needs are spelled once, in `live::Control`.
 
 Dark-Nord by default (fully morphable). Design + tier-honest ledger:
 [`theory/KAZARI.md`](https://github.com/pleme-io/theory/blob/main/KAZARI.md).
