@@ -192,9 +192,9 @@ rec {
       };
       "libc" = rec {
         crateName = "libc";
-        version = "0.2.190";
+        version = "0.2.191";
         edition = "2021";
-        sha256 = "0y5yap4bfp7rfsldcbk9pb5alcgygca5xn1n2pmh181zdpf3spff";
+        sha256 = "02i4j7pjh129y92rijaia4576131fa2xjsii1dc3c1fnlv4qgkb5";
         features = {
           "default" = [ "std" ];
           "rustc-dep-of-std" = [ "align" "rustc-std-workspace-core" ];
@@ -240,7 +240,7 @@ rec {
       };
       "pleme-io-kazari" = rec {
         crateName = "pleme-io-kazari";
-        version = "0.2.3";
+        version = "0.2.4";
         edition = "2024";
         src = lib.cleanSourceWith { filter = sourceFilter;  src = ./.; };
         libName = "kazari";
@@ -517,13 +517,9 @@ rec {
       };
       "serde_json" = rec {
         crateName = "serde_json";
-        version = "1.0.151";
+        version = "1.0.154";
         edition = "2021";
-        sha256 = "051zww7lvpw147vvwss1ng6w587qyrkzg75fvj08q2dfrmgbahf8";
-        authors = [
-          "Erick Tryzelaar <erick.tryzelaar@gmail.com>"
-          "David Tolnay <dtolnay@gmail.com>"
-        ];
+        sha256 = "1mjby21g8fxhrsfp73yz8wg6n2f4h23ah0nczds409l53f5wrsg7";
         dependencies = [
           {
             name = "itoa";
@@ -561,16 +557,16 @@ rec {
           "alloc" = [ "serde_core/alloc" ];
           "default" = [ "std" ];
           "indexmap" = [ "dep:indexmap" ];
-          "preserve_order" = [ "indexmap" "std" ];
+          "preserve_order" = [ "indexmap" "alloc" "dep:foldhash" ];
           "std" = [ "memchr/std" "serde_core/std" ];
         };
         resolvedDefaultFeatures = [ "default" "std" ];
       };
       "syn" = rec {
         crateName = "syn";
-        version = "3.0.6";
+        version = "3.0.9";
         edition = "2021";
-        sha256 = "1vmw7s58rzrs926nv5m06x7qbgswm1aa9iw3s1bj5var47kyi4w5";
+        sha256 = "0fw28lhl90kls24q2h2sp39yjb0lsvz5cwh9fd3f3w3v9kp8v36p";
         authors = [
           "David Tolnay <dtolnay@gmail.com>"
         ];
@@ -670,9 +666,9 @@ rec {
       };
       "unicode-ident" = rec {
         crateName = "unicode-ident";
-        version = "1.0.26";
+        version = "1.0.27";
         edition = "2021";
-        sha256 = "0m3915ipi4zz7isncf5k1dz47ys0nq9j7l4l2n2rm03zaxwg8ifj";
+        sha256 = "0qv54hz0sxmspjyr162z3435pnyylzjjhx3j4k1s359pqgb59ix2";
         libName = "unicode_ident";
         authors = [
           "David Tolnay <dtolnay@gmail.com>"
