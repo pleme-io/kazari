@@ -86,8 +86,7 @@ Consumers: `sui` (sui-spec), `engenho` (`engenho status`, `engenho ctl`).
   SGR — the escape bytes are anstyle's, never hand-spelled). The cursor and
   screen controls a live region needs are spelled once, in `live::Control`.
 
-Dark-Nord by default (fully morphable). Design + tier-honest ledger:
-[`theory/KAZARI.md`](https://github.com/pleme-io/theory/blob/main/KAZARI.md).
+Dark-Nord by default (fully morphable).
 
 ## License
 
